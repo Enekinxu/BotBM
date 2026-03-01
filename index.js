@@ -10,7 +10,8 @@ const {
     ActionRowBuilder,
     ButtonBuilder,
     ButtonStyle,
-    Collection
+    Collection,
+    PermissionsBitField
 } = require("discord.js");
 
 // Crear REST con el token
@@ -203,11 +204,11 @@ client.on("interactionCreate", async interaction => {
             const rango = interaction.options.getString("rango");
 
             const nombres = {
-                mago: "🟦 Rango Mago",
-                manacrest: "🟪 Rango Manacrest",
-                arcano: "🟩 Rango Arcano",
-                hechicero: "🟧 Rango Hechicero",
-                aprendiz: "🟨 Rango Aprendiz"
+                mago: "🧙‍♂️ Rango Mago",
+                manacrest: "🧙‍♂️ Rango Manacrest",
+                arcano: "🧙‍♂️ Rango Arcano",
+                hechicero: "🧙‍♂️ Rango Hechicero",
+                aprendiz: "🧙‍♂️ Rango Aprendiz"
             };
 
             const embed = new EmbedBuilder()
@@ -246,15 +247,12 @@ Pulsa el botón para participar.`
                 autor: interaction.user.id
             });
 
-            // ----------------------
             // FINALIZACIÓN AUTOMÁTICA A LAS 24H
-            // ----------------------
             setTimeout(async () => {
                 const data = sorteos.get(msg.id);
                 if (!data) return;
-
                 finalizarSorteo(interaction.guild, msg, data);
-            }, 24 * 60 * 60 * 1000); // 24 horas
+            }, 24 * 60 * 60 * 1000);
         }
     }
 
@@ -275,8 +273,16 @@ Pulsa el botón para participar.`
             }
         }
 
-        // Finalizar sorteo manualmente
+        // Finalizar sorteo manualmente (SOLO ADMINISTRADORES)
         if (interaction.customId === "finalizar") {
+
+            if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                return interaction.reply({
+                    content: "❌ No tienes permisos para finalizar el sorteo.",
+                    ephemeral: true
+                });
+            }
+
             finalizarSorteo(interaction.guild, interaction.message, data);
             return interaction.reply({ content: "Sorteo finalizado manualmente.", ephemeral: true });
         }
