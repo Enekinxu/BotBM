@@ -55,9 +55,11 @@ const comandos = [
                 .setDescription("Rango a sortear")
                 .setRequired(true)
                 .addChoices(
-                    { name: "Aprendiz", value: "aprendiz" },
                     { name: "Mago", value: "mago" },
-                    { name: "Hechicero", value: "hechicero" }
+                    { name: "Manacrest", value: "manacrest" },
+                    { name: "Arcano", value: "arcano" },
+                    { name: "Hechicero", value: "hechicero" },
+                    { name: "Aprendiz", value: "aprendiz" }
                 )
         )
 ].map(cmd => cmd.toJSON());
@@ -190,9 +192,11 @@ client.on("interactionCreate", async interaction => {
             const rango = interaction.options.getString("rango");
 
             const nombres = {
-                aprendiz: "🧙 Rango Aprendiz",
-                mago: "🔮 Rango Mago",
-                hechicero: "✨ Rango Hechicero"
+                mago: "🟦 Rango Mago",
+                manacrest: "🟪 Rango Manacrest",
+                arcano: "🟩 Rango Arcano",
+                hechicero: "🟧 Rango Hechicero",
+                aprendiz: "🟨 Rango Aprendiz"
             };
 
             const embed = new EmbedBuilder()
