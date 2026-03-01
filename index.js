@@ -55,8 +55,8 @@ const comandos = [
                 .setDescription("Rango a sortear")
                 .setRequired(true)
                 .addChoices(
-                    { name: "Aprendiz", value: "aprendiz" },
-                    { name: "Mago", value: "mago" },
+                    { name: "| Aprendiz", value: "aprendiz" },
+                    { name: "| Mago", value: "mago" },
                     { name: "Hechicero", value: "hechicero" }
                 )
         )
