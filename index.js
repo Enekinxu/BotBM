@@ -6,7 +6,11 @@ const {
     EmbedBuilder,
     SlashCommandBuilder,
     REST,
-    Routes
+    Routes,
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    Collection
 } = require("discord.js");
 
 // Crear REST con el token
@@ -21,8 +25,11 @@ const client = new Client({
     ]
 });
 
+// Guardar participantes de cada sorteo
+const sorteos = new Collection();
+
 // ----------------------
-// REGISTRO DEL COMANDO
+// REGISTRO DE COMANDOS
 // ----------------------
 const comandos = [
     new SlashCommandBuilder()
@@ -37,6 +44,21 @@ const comandos = [
                     { name: "Discord", value: "discord" },
                     { name: "Minecraft", value: "minecraft" }
                 )
+        ),
+
+    new SlashCommandBuilder()
+        .setName("sorteo")
+        .setDescription("Crea un sorteo de un rango temporal")
+        .addStringOption(option =>
+            option
+                .setName("rango")
+                .setDescription("Rango a sortear")
+                .setRequired(true)
+                .addChoices(
+                    { name: "Aprendiz", value: "aprendiz" },
+                    { name: "Mago", value: "mago" },
+                    { name: "Hechicero", value: "hechicero" }
+                )
         )
 ].map(cmd => cmd.toJSON());
 
@@ -48,29 +70,29 @@ client.on("ready", async () => {
             Routes.applicationCommands(client.user.id),
             { body: comandos }
         );
-        console.log("Comando /reglas registrado correctamente.");
+        console.log("Comandos registrados correctamente.");
     } catch (error) {
         console.error(error);
     }
 });
 
 // ----------------------
-// RESPUESTA AL COMANDO
+// RESPUESTA A COMANDOS
 // ----------------------
 client.on("interactionCreate", async interaction => {
-    if (!interaction.isChatInputCommand()) return;
-
-    if (interaction.commandName === "reglas") {
-        const tipo = interaction.options.getString("tipo");
+    if (interaction.isChatInputCommand()) {
 
         // ----------------------
-        // REGLAS DISCORD
+        // COMANDO /REGLAS
         // ----------------------
-        if (tipo === "discord") {
-            const embedDiscord = new EmbedBuilder()
-                .setTitle("📘 Reglas Discord")
-                .setColor("#5865F2")
-                .setDescription(
+        if (interaction.commandName === "reglas") {
+            const tipo = interaction.options.getString("tipo");
+
+            if (tipo === "discord") {
+                const embedDiscord = new EmbedBuilder()
+                    .setTitle("📘 Reglas Discord")
+                    .setColor("#5865F2")
+                    .setDescription(
 `🛡️ **Reglas Generales de Comportamiento**
 • Respeta a todos los miembros. No se tolera el acoso, insultos ni discriminación.
 • Evita contenido NSFW o sensible.
@@ -115,57 +137,148 @@ client.on("interactionCreate", async interaction => {
 • Reporta comportamientos extraños al staff.
 • No uses multicuentas para evadir sanciones.
 • No intentes hackear, raidear o sabotear el servidor.`
-                );
+                    );
 
-            return interaction.reply({ embeds: [embedDiscord] });
+                return interaction.reply({ embeds: [embedDiscord] });
+            }
+
+            if (tipo === "minecraft") {
+                const embedMinecraft = new EmbedBuilder()
+                    .setTitle("📘 Reglas de Minecraft")
+                    .setColor("#9E00FF")
+                    .setDescription(
+`🛡️ **Reglas Generales del Reino**
+• Respeta a todos los jugadores.
+• No hagas spam ni flood.
+• No uses lenguaje ofensivo.
+• No compartas información personal.
+• Sigue las instrucciones del staff.
+
+🧱 **Construcción**
+• No destruyas construcciones ajenas.
+• Evita construcciones ofensivas.
+• Respeta zonas protegidas.
+• No abuses de redstone que cause lag.
+
+⚔️ **PvP**
+• Solo permitido en zonas habilitadas.
+• No hagas spawnkill.
+• Respeta duelos y eventos.
+• No robes objetos sin reglas claras.
+
+💰 **Economía**
+• No estafes.
+• Respeta precios oficiales.
+• No dupliques objetos.
+• Usa canales adecuados para intercambios.
+
+🚫 **Técnico**
+• Prohibido hacks o mods no autorizados.
+• No explotes bugs.
+• No hagas publicidad de otros servidores.
+• Reporta comportamientos sospechosos.`
+                    );
+
+                return interaction.reply({ embeds: [embedMinecraft] });
+            }
         }
 
         // ----------------------
-        // REGLAS MINECRAFT
+        // COMANDO /SORTEO
         // ----------------------
-        if (tipo === "minecraft") {
-            const embedMinecraft = new EmbedBuilder()
-                .setTitle("📘 Reglas de Minecraft")
-                .setColor("#9E00FF")
+        if (interaction.commandName === "sorteo") {
+            const rango = interaction.options.getString("rango");
+
+            const nombres = {
+                aprendiz: "🧙 Rango Aprendiz",
+                mago: "🔮 Rango Mago",
+                hechicero: "✨ Rango Hechicero"
+            };
+
+            const embed = new EmbedBuilder()
+                .setTitle("🎉 ¡Sorteo Activo!")
+                .setColor("#FFD700")
                 .setDescription(
-`🛡️ **Reglas Generales del Reino**
-• Respeta a todos los jugadores. No se tolera el acoso, insultos ni discriminación.
-• No hagas spam ni flood en el chat.
-• No uses lenguaje ofensivo o inapropiado.
-• No compartas información personal.
-• Sigue las instrucciones del staff o moderadores.
+`Se está sorteando **${nombres[rango]}**  
+Duración del premio: **1 mes**
 
-🧱 **Reglas de Construcción**
-• No destruyas construcciones ajenas (griefing).
-• Evita construcciones ofensivas o inapropiadas.
-• Respeta las zonas protegidas o temáticas.
-• No abuses de redstone que cause lag.
-
-⚔️ **Reglas de PvP y Combate**
-• El PvP solo está permitido en zonas habilitadas.
-• No hagas spawnkill ni ataques injustos.
-• Respeta los duelos y eventos organizados.
-• No robes objetos tras matar a alguien sin reglas claras.
-
-💰 **Reglas de Economía y Comercio**
-• No estafes a otros jugadores.
-• Respeta los precios establecidos en tiendas oficiales.
-• No dupliques objetos ni uses bugs para obtener ventaja.
-• Usa los canales adecuados para intercambios.
-
-🚫 **Reglas Técnicas y de Seguridad**
-• Prohibido el uso de hacks, cheats o mods no autorizados.
-• No explotes bugs o glitches del servidor.
-• No hagas publicidad de otros servidores.
-• Reporta cualquier comportamiento sospechoso al staff.
-
-🎉 **Reglas de Eventos y Actividades**
-• Sigue las normas específicas de cada evento.
-• No interrumpas ni sabotees actividades comunitarias.
-• Participa con buena actitud y espíritu de equipo.`
+Pulsa el botón para participar.`
                 );
 
-            return interaction.reply({ embeds: [embedMinecraft] });
+            const botones = new ActionRowBuilder().addComponents(
+                new ButtonBuilder()
+                    .setCustomId("participar")
+                    .setLabel("Participar 🎉")
+                    .setStyle(ButtonStyle.Success),
+
+                new ButtonBuilder()
+                    .setCustomId("finalizar")
+                    .setLabel("Finalizar Sorteo")
+                    .setStyle(ButtonStyle.Danger)
+            );
+
+            const msg = await interaction.reply({
+                embeds: [embed],
+                components: [botones],
+                fetchReply: true
+            });
+
+            sorteos.set(msg.id, {
+                participantes: [],
+                rango: rango
+            });
+        }
+    }
+
+    // ----------------------
+    // BOTONES DEL SORTEO
+    // ----------------------
+    if (interaction.isButton()) {
+        const data = sorteos.get(interaction.message.id);
+        if (!data) return;
+
+        // Participar
+        if (interaction.customId === "participar") {
+            if (!data.participantes.includes(interaction.user.id)) {
+                data.participantes.push(interaction.user.id);
+                return interaction.reply({ content: "¡Participación registrada! 🎉", ephemeral: true });
+            } else {
+                return interaction.reply({ content: "Ya estás participando.", ephemeral: true });
+            }
+        }
+
+        // Finalizar sorteo
+        if (interaction.customId === "finalizar") {
+            if (data.participantes.length === 0) {
+                return interaction.reply("No hubo participantes.");
+            }
+
+            const ganador = data.participantes[Math.floor(Math.random() * data.participantes.length)];
+
+            const rol = interaction.guild.roles.cache.find(r => r.name.toLowerCase() === data.rango);
+            if (!rol) return interaction.reply("El rol no existe.");
+
+            const miembro = await interaction.guild.members.fetch(ganador);
+            await miembro.roles.add(rol);
+
+            setTimeout(async () => {
+                await miembro.roles.remove(rol);
+            }, 30 * 24 * 60 * 60 * 1000);
+
+            const embedGanador = new EmbedBuilder()
+                .setTitle("🎉 ¡Ganador del Sorteo!")
+                .setColor("#00FF00")
+                .setDescription(
+`El ganador del sorteo es:
+
+🏆 <@${ganador}> 🏆
+
+Ha ganado **${data.rango}** durante **1 mes**.`
+                );
+
+            sorteos.delete(interaction.message.id);
+
+            return interaction.reply({ embeds: [embedGanador] });
         }
     }
 });
