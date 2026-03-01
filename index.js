@@ -1,7 +1,31 @@
-const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
+require("dotenv").config();
 
-module.exports = {
-    data: new SlashCommandBuilder()
+const {
+    Client,
+    GatewayIntentBits,
+    EmbedBuilder,
+    SlashCommandBuilder,
+    REST,
+    Routes
+} = require("discord.js");
+
+// Crear REST con el token
+const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
+
+// Crear cliente
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ]
+});
+
+// ----------------------
+// REGISTRO DEL COMANDO
+// ----------------------
+const comandos = [
+    new SlashCommandBuilder()
         .setName("reglas")
         .setDescription("Muestra las reglas del servidor")
         .addStringOption(option =>
@@ -13,13 +37,37 @@ module.exports = {
                     { name: "Discord", value: "discord" },
                     { name: "Minecraft", value: "minecraft" }
                 )
-        ),
+        )
+].map(cmd => cmd.toJSON());
 
-    async execute(interaction) {
+client.on("ready", async () => {
+    console.log(`Bot iniciado como ${client.user.tag}`);
+
+    try {
+        await rest.put(
+            Routes.applicationCommands(client.user.id),
+            { body: comandos }
+        );
+        console.log("Comando /reglas registrado correctamente.");
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+// ----------------------
+// RESPUESTA AL COMANDO
+// ----------------------
+client.on("interactionCreate", async interaction => {
+    if (!interaction.isChatInputCommand()) return;
+
+    if (interaction.commandName === "reglas") {
         const tipo = interaction.options.getString("tipo");
 
+        // ----------------------
+        // REGLAS DISCORD
+        // ----------------------
         if (tipo === "discord") {
-            const embed = new EmbedBuilder()
+            const embedDiscord = new EmbedBuilder()
                 .setTitle("📘 Reglas Discord")
                 .setColor("#5865F2")
                 .setDescription(
@@ -69,50 +117,58 @@ module.exports = {
 • No intentes hackear, raidear o sabotear el servidor.`
                 );
 
-            return interaction.reply({ embeds: [embed] });
+            return interaction.reply({ embeds: [embedDiscord] });
         }
 
+        // ----------------------
+        // REGLAS MINECRAFT
+        // ----------------------
         if (tipo === "minecraft") {
-            const embed = new EmbedBuilder()
+            const embedMinecraft = new EmbedBuilder()
                 .setTitle("📘 Reglas de Minecraft")
                 .setColor("#9E00FF")
                 .setDescription(
 `🛡️ **Reglas Generales del Reino**
-• Respeta a todos los jugadores.
-• No hagas spam ni flood.
-• No uses lenguaje ofensivo.
+• Respeta a todos los jugadores. No se tolera el acoso, insultos ni discriminación.
+• No hagas spam ni flood en el chat.
+• No uses lenguaje ofensivo o inapropiado.
 • No compartas información personal.
-• Sigue las instrucciones del staff.
+• Sigue las instrucciones del staff o moderadores.
 
-🧱 **Construcción**
-• No destruyas construcciones ajenas.
-• Evita construcciones ofensivas.
-• Respeta zonas protegidas.
+🧱 **Reglas de Construcción**
+• No destruyas construcciones ajenas (griefing).
+• Evita construcciones ofensivas o inapropiadas.
+• Respeta las zonas protegidas o temáticas.
 • No abuses de redstone que cause lag.
 
-⚔️ **PvP**
-• Solo permitido en zonas habilitadas.
-• No hagas spawnkill.
-• Respeta duelos y eventos.
-• No robes objetos sin reglas claras.
+⚔️ **Reglas de PvP y Combate**
+• El PvP solo está permitido en zonas habilitadas.
+• No hagas spawnkill ni ataques injustos.
+• Respeta los duelos y eventos organizados.
+• No robes objetos tras matar a alguien sin reglas claras.
 
-💰 **Economía**
-• No estafes.
-• Respeta precios oficiales.
-• No dupliques objetos.
-• Usa canales adecuados para intercambios.
+💰 **Reglas de Economía y Comercio**
+• No estafes a otros jugadores.
+• Respeta los precios establecidos en tiendas oficiales.
+• No dupliques objetos ni uses bugs para obtener ventaja.
+• Usa los canales adecuados para intercambios.
 
-🚫 **Técnico**
-• Prohibido hacks o mods no autorizados.
-• No explotes bugs.
+🚫 **Reglas Técnicas y de Seguridad**
+• Prohibido el uso de hacks, cheats o mods no autorizados.
+• No explotes bugs o glitches del servidor.
 • No hagas publicidad de otros servidores.
-• Reporta comportamientos sospechosos.`
+• Reporta cualquier comportamiento sospechoso al staff.
+
+🎉 **Reglas de Eventos y Actividades**
+• Sigue las normas específicas de cada evento.
+• No interrumpas ni sabotees actividades comunitarias.
+• Participa con buena actitud y espíritu de equipo.`
                 );
 
-            return interaction.reply({ embeds: [embed] });
+            return interaction.reply({ embeds: [embedMinecraft] });
         }
     }
-};
+});
 
 // Login
 client.login(process.env.TOKEN);
