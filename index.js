@@ -53,7 +53,7 @@ client.on("interactionCreate", async interaction => {
     if (interaction.commandName === "reglas") {
 
         const embed = new EmbedBuilder()
-            .setTitle("📘 Reglas de Minecraft")
+            .setTitle("📘 Reglas de Minecraft @everyone")
             .setColor("#9E00FF")
             .setDescription(
 `🛡️ **Reglas Generales del Reino**
