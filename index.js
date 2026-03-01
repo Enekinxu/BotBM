@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const { 
     Client, 
     GatewayIntentBits, 
@@ -7,6 +9,10 @@ const {
     Routes 
 } = require("discord.js");
 
+// Crear REST con el token
+const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
+
+// Crear cliente
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -23,8 +29,6 @@ const comandos = [
         .setName("reglas")
         .setDescription("Muestra las reglas del servidor")
 ].map(cmd => cmd.toJSON());
-
-const rest = new REST({ version: "10" }).setToken("MTQ2MjQ4MDI3MTExMzk3NzkxOQ.GJBh9Y.o1JQUWiQcqxFN59palcYhJzPYrQViLikeo5vHs");
 
 client.on("ready", async () => {
     console.log(`Bot iniciado como ${client.user.tag}`);
@@ -93,4 +97,5 @@ client.on("interactionCreate", async interaction => {
     }
 });
 
-client.login("TOKEN_DEL_BOT");
+// Login
+client.login(process.env.TOKEN);
