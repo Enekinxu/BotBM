@@ -29,6 +29,17 @@ const client = new Client({
 const sorteos = new Collection();
 
 // ----------------------
+// IDs DE ROLES (PON TUS IDs AQUÍ)
+// ----------------------
+const roles = {
+    mago: "1456327931981729855",
+    manacrest: "1456588261966348435",
+    arcano: "1456587467963629613",
+    hechicero: "1456587191164862555",
+    aprendiz: "1456327766617227284"
+};
+
+// ----------------------
 // REGISTRO DE COMANDOS
 // ----------------------
 const comandos = [
@@ -55,11 +66,11 @@ const comandos = [
                 .setDescription("Rango a sortear")
                 .setRequired(true)
                 .addChoices(
-                    { name: "| Mago", value: "mago" },
-                    { name: "| Manacrest", value: "manacrest" },
-                    { name: "| Arcano", value: "arcano" },
+                    { name: "Mago", value: "mago" },
+                    { name: "Manacrest", value: "manacrest" },
+                    { name: "Arcano", value: "arcano" },
                     { name: "Hechicero", value: "hechicero" },
-                    { name: "| Aprendiz", value: "aprendiz" }
+                    { name: "Aprendiz", value: "aprendiz" }
                 )
         )
 ].map(cmd => cmd.toJSON());
@@ -192,16 +203,16 @@ client.on("interactionCreate", async interaction => {
             const rango = interaction.options.getString("rango");
 
             const nombres = {
-                mago: "🧙‍♂️ Rango Mago",
-                manacrest: "🧙‍♂️ Rango Manacrest",
-                arcano: "🧙‍♂️ Rango Arcano",
-                hechicero: "🧙‍♂️ Rango Hechicero",
-                aprendiz: "🧙‍♂️ Rango Aprendiz"
+                mago: "🟦 Rango Mago",
+                manacrest: "🟪 Rango Manacrest",
+                arcano: "🟩 Rango Arcano",
+                hechicero: "🟧 Rango Hechicero",
+                aprendiz: "🟨 Rango Aprendiz"
             };
 
             const embed = new EmbedBuilder()
                 .setTitle("🎉 ¡Sorteo Activo!")
-                .setColor("#9E00FF")
+                .setColor("#FFD700")
                 .setDescription(
 `Se está sorteando **${nombres[rango]}**  
 Duración del premio: **1 mes**
@@ -259,8 +270,10 @@ Pulsa el botón para participar.`
 
             const ganador = data.participantes[Math.floor(Math.random() * data.participantes.length)];
 
-            const rol = interaction.guild.roles.cache.find(r => r.name.toLowerCase() === data.rango);
-            if (!rol) return interaction.reply("El rol no existe.");
+            const rolID = roles[data.rango];
+            const rol = interaction.guild.roles.cache.get(rolID);
+
+            if (!rol) return interaction.reply("❌ El rol configurado NO existe. Revisa las IDs.");
 
             const miembro = await interaction.guild.members.fetch(ganador);
             await miembro.roles.add(rol);
