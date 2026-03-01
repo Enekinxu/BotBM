@@ -50,7 +50,7 @@ client.on("ready", async () => {
 client.on("interactionCreate", async interaction => {
     if (!interaction.isChatInputCommand()) return;
 
-    if (interaction.commandName === "reglas") {
+    if (interaction.commandName === "reglasmc") {
 
         const embed = new EmbedBuilder()
             .setTitle("📘 Reglas de Minecraft @everyone")
