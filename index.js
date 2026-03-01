@@ -217,6 +217,8 @@ client.on("interactionCreate", async interaction => {
 `Se está sorteando **${nombres[rango]}**  
 Duración del premio: **1 mes**
 
+⏳ El sorteo finalizará automáticamente en **24 horas**.
+
 Pulsa el botón para participar.`
                 );
 
@@ -240,8 +242,19 @@ Pulsa el botón para participar.`
 
             sorteos.set(msg.id, {
                 participantes: [],
-                rango: rango
+                rango: rango,
+                autor: interaction.user.id
             });
+
+            // ----------------------
+            // FINALIZACIÓN AUTOMÁTICA A LAS 24H
+            // ----------------------
+            setTimeout(async () => {
+                const data = sorteos.get(msg.id);
+                if (!data) return;
+
+                finalizarSorteo(interaction.guild, msg, data);
+            }, 24 * 60 * 60 * 1000); // 24 horas
         }
     }
 
@@ -262,43 +275,56 @@ Pulsa el botón para participar.`
             }
         }
 
-        // Finalizar sorteo
+        // Finalizar sorteo manualmente
         if (interaction.customId === "finalizar") {
-            if (data.participantes.length === 0) {
-                return interaction.reply("No hubo participantes.");
-            }
+            finalizarSorteo(interaction.guild, interaction.message, data);
+            return interaction.reply({ content: "Sorteo finalizado manualmente.", ephemeral: true });
+        }
+    }
+});
 
-            const ganador = data.participantes[Math.floor(Math.random() * data.participantes.length)];
+// ----------------------
+// FUNCIÓN PARA FINALIZAR SORTEO
+// ----------------------
+async function finalizarSorteo(guild, message, data) {
+    if (data.participantes.length === 0) {
+        message.reply("❌ No hubo participantes.");
+        sorteos.delete(message.id);
+        return;
+    }
 
-            const rolID = roles[data.rango];
-            const rol = interaction.guild.roles.cache.get(rolID);
+    const ganador = data.participantes[Math.floor(Math.random() * data.participantes.length)];
 
-            if (!rol) return interaction.reply("❌ El rol configurado NO existe. Revisa las IDs.");
+    const rolID = roles[data.rango];
+    const rol = guild.roles.cache.get(rolID);
 
-            const miembro = await interaction.guild.members.fetch(ganador);
-            await miembro.roles.add(rol);
+    if (!rol) {
+        message.reply("❌ El rol configurado NO existe. Revisa las IDs.");
+        return;
+    }
 
-            setTimeout(async () => {
-                await miembro.roles.remove(rol);
-            }, 30 * 24 * 60 * 60 * 1000);
+    const miembro = await guild.members.fetch(ganador);
+    await miembro.roles.add(rol);
 
-            const embedGanador = new EmbedBuilder()
-                .setTitle("🎉 ¡Ganador del Sorteo!")
-                .setColor("#00FF00")
-                .setDescription(
+    setTimeout(async () => {
+        await miembro.roles.remove(rol);
+    }, 30 * 24 * 60 * 60 * 1000);
+
+    const embedGanador = new EmbedBuilder()
+        .setTitle("🎉 ¡Ganador del Sorteo!")
+        .setColor("#00FF00")
+        .setDescription(
 `El ganador del sorteo es:
 
 🏆 <@${ganador}> 🏆
 
 Ha ganado **${data.rango}** durante **1 mes**.`
-                );
+        );
 
-            sorteos.delete(interaction.message.id);
+    message.reply({ embeds: [embedGanador] });
 
-            return interaction.reply({ embeds: [embedGanador] });
-        }
-    }
-});
+    sorteos.delete(message.id);
+}
 
 // Login
 client.login(process.env.TOKEN);
