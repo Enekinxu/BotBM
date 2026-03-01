@@ -192,16 +192,16 @@ client.on("interactionCreate", async interaction => {
             const rango = interaction.options.getString("rango");
 
             const nombres = {
-                mago: "🟦 Rango Mago",
-                manacrest: "🟪 Rango Manacrest",
-                arcano: "🟩 Rango Arcano",
-                hechicero: "🟧 Rango Hechicero",
-                aprendiz: "🟨 Rango Aprendiz"
+                mago: "🧙‍♂️ Rango Mago",
+                manacrest: "🧙‍♂️ Rango Manacrest",
+                arcano: "🧙‍♂️ Rango Arcano",
+                hechicero: "🧙‍♂️ Rango Hechicero",
+                aprendiz: "🧙‍♂️ Rango Aprendiz"
             };
 
             const embed = new EmbedBuilder()
                 .setTitle("🎉 ¡Sorteo Activo!")
-                .setColor("#FFD700")
+                .setColor("#9E00FF")
                 .setDescription(
 `Se está sorteando **${nombres[rango]}**  
 Duración del premio: **1 mes**
