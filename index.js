@@ -19,7 +19,7 @@ module.exports = {
         const tipo = interaction.options.getString("tipo");
 
         if (tipo === "discord") {
-            const embedDiscord = new EmbedBuilder()
+            const embed = new EmbedBuilder()
                 .setTitle("📘 Reglas Discord")
                 .setColor("#5865F2")
                 .setDescription(
@@ -69,11 +69,11 @@ module.exports = {
 • No intentes hackear, raidear o sabotear el servidor.`
                 );
 
-            return interaction.reply({ embeds: [embedDiscord] });
+            return interaction.reply({ embeds: [embed] });
         }
 
         if (tipo === "minecraft") {
-            const embedMinecraft = new EmbedBuilder()
+            const embed = new EmbedBuilder()
                 .setTitle("📘 Reglas de Minecraft")
                 .setColor("#9E00FF")
                 .setDescription(
@@ -109,7 +109,7 @@ module.exports = {
 • Reporta comportamientos sospechosos.`
                 );
 
-            return interaction.reply({ embeds: [embedMinecraft] });
+            return interaction.reply({ embeds: [embed] });
         }
     }
 };
