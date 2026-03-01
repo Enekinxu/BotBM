@@ -55,11 +55,11 @@ const comandos = [
                 .setDescription("Rango a sortear")
                 .setRequired(true)
                 .addChoices(
-                    { name: "Mago", value: "mago" },
-                    { name: "Manacrest", value: "manacrest" },
-                    { name: "Arcano", value: "arcano" },
+                    { name: "| Mago", value: "mago" },
+                    { name: "| Manacrest", value: "manacrest" },
+                    { name: "| Arcano", value: "arcano" },
                     { name: "Hechicero", value: "hechicero" },
-                    { name: "Aprendiz", value: "aprendiz" }
+                    { name: "| Aprendiz", value: "aprendiz" }
                 )
         )
 ].map(cmd => cmd.toJSON());
