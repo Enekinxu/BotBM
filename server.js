@@ -1,15 +1,52 @@
-const comandos = [
-    new SlashCommandBuilder()
-        .setName("reglas")
-        .setDescription("Muestra las reglas del servidor")
-        .addStringOption(opt => opt.setName("regla").setDescription("Muestra las reglas del servidor").setRequired(false)),
+// ----------------------
+// COMANDO /SERVER
+// ----------------------
+if (interaction.commandName === "server") {
 
-    new SlashCommandBuilder()
-        .setName("sorteo")
-        .setDescription("Crea un sorteo de un rango temporal")
-        .addStringOption(opt => opt.setName("rango").setDescription("Crea un sorteo de un rango temporal").setRequired(true)),
+    const embed = new EmbedBuilder()
+        .setTitle("🌐 Información del Servidor")
+        .setColor("#8A2BE2")
+        .setThumbnail("https://i.imgur.com/5c3QXQF.png")
+        .setDescription("Aquí tienes los datos oficiales del servidor BloqueMágico | Network:")
+        .addFields(
+            {
+                name: "🟩 Minecraft Java",
+                value: "**IP:** play.bloquemagico.fun",
+                inline: false
+            },
+            {
+                name: "🟦 Minecraft Bedrock",
+                value: "**IP:** mc.bloquemagico.fun\n**Puerto:** 19132",
+                inline: false
+            },
+            {
+                name: "🛒 Tienda",
+                value: "https://tienda.bloquemagico.fun/",
+                inline: false
+            },
+            {
+                name: "📅 Fecha de creación",
+                value: "6/1/2026",
+                inline: true
+            },
+            {
+                name: "👥 Usuarios",
+                value: "130",
+                inline: true
+            },
+            {
+                name: "📺 Canales",
+                value: "108",
+                inline: true
+            },
+            {
+                name: "😃 Emojis",
+                value: "😀 😎 🤖 🧙‍♂️ ✨ 🔮 🐉",
+                inline: false
+            }
+        )
+        .setFooter({ text: "BloqueMágico | Network" })
+        .setTimestamp();
 
-    new SlashCommandBuilder()
-        .setName("server")
-        .setDescription("Muestra información del servidor Discord")
-].map(cmd => cmd.toJSON());
+    return interaction.reply({ embeds: [embed] });
+}

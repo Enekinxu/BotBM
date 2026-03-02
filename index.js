@@ -73,7 +73,11 @@ const comandos = [
                     { name: "Hechicero", value: "hechicero" },
                     { name: "Aprendiz", value: "aprendiz" }
                 )
-        )
+        ),
+
+    new SlashCommandBuilder()
+        .setName("server")
+        .setDescription("Muestra información del servidor Discord")
 ].map(cmd => cmd.toJSON());
 
 client.on("ready", async () => {
