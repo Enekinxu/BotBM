@@ -270,8 +270,8 @@ Pulsa el botón para participar.`
                 .addFields(
                     { name: "🟩 Minecraft Java", value: "**IP:** bloquemagico.aternos.me" },
                     { name: "🛒 Tienda", value: "https://bloquemagico.craftingstore.net/" },
-                    { name: "📅 Fecha de creación", value:  "6/1/2026", inline: true },
-                    { name: "👥 Usuarios", value: "130", inline: true },
+                    { name: "📅 Fecha de creación", value:  "26/10/2025", inline: true },
+                    { name: "👥 Usuarios", value: `Total: ${interaction.guild.memberCount}\nHumanos: ${interaction.guild.members.cache.filter(m => !m.user.bot).size}\nBots: ${interaction.guild.members.cache.filter(m => m.user.bot).size}`, inline: true },
                     { name: "📺 Canales", value: "108", inline: true },
                     { name: "😃 Emojis", value: "<:17927bolt:1460681116485947659> <:17927warning:1460681133355176102> <:18341calendar:1460679589721542657> <:30939developer:1460679668133789880> <:32162signalbarred:1478032901525344512> <:51052signalbargreen:1478032873599533137> <:59513bluemod:1460679686769348662> <:65981twitch:1460679704137826304> <:67891chaticon:1460679723515642061> <:72031announcement:1460679896136290540> <:73430members:1460679926389670137> <:92143verified:1460679942873419826> <:BloqueMagico:1461052119124541470> <:Cargando:1469632978161504319>" }
                 )
