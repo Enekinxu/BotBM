@@ -1,102 +1,3 @@
-require("dotenv").config();
-
-const {
-    Client,
-    GatewayIntentBits,
-    EmbedBuilder,
-    SlashCommandBuilder,
-    REST,
-    Routes,
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    Collection,
-    PermissionsBitField
-} = require("discord.js");
-
-// Crear REST con el token
-const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
-
-// Crear cliente
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
-    ]
-});
-
-// Guardar participantes de cada sorteo
-const sorteos = new Collection();
-
-// ----------------------
-// IDs DE ROLES (PON TUS IDs AQUÍ)
-// ----------------------
-const roles = {
-    mago: "1456327931981729855",
-    manacrest: "1456588261966348435",
-    arcano: "1456587467963629613",
-    hechicero: "1456587191164862555",
-    aprendiz: "1456327766617227284"
-};
-
-// ----------------------
-// REGISTRO DE COMANDOS
-// ----------------------
-const comandos = [
-    new SlashCommandBuilder()
-        .setName("reglas")
-        .setDescription("Muestra las reglas del servidor")
-        .addStringOption(option =>
-            option
-                .setName("tipo")
-                .setDescription("Elige qué reglas quieres ver")
-                .setRequired(true)
-                .addChoices(
-                    { name: "Discord", value: "discord" },
-                    { name: "Minecraft", value: "minecraft" }
-                )
-        ),
-
-    new SlashCommandBuilder()
-        .setName("sorteo")
-        .setDescription("Crea un sorteo de un rango temporal")
-        .addStringOption(option =>
-            option
-                .setName("rango")
-                .setDescription("Rango a sortear")
-                .setRequired(true)
-                .addChoices(
-                    { name: "Mago", value: "mago" },
-                    { name: "Manacrest", value: "manacrest" },
-                    { name: "Arcano", value: "arcano" },
-                    { name: "Hechicero", value: "hechicero" },
-                    { name: "Aprendiz", value: "aprendiz" }
-                )
-        ),
-
-    new SlashCommandBuilder()
-        .setName("server")
-        .setDescription("Muestra información del servidor Discord")
-].map(cmd => cmd.toJSON());
-
-client.on("ready", async () => {
-    console.log(`Bot iniciado como ${client.user.tag}`);
-
-    try {
-        await rest.put(
-            Routes.applicationCommands(client.user.id),
-            { body: comandos }
-        );
-        console.log("Comandos registrados correctamente.");
-    } catch (error) {
-        console.error(error);
-    }
-});
-
-// ----------------------
-// RESPUESTA A COMANDOS
-// ----------------------
 client.on("interactionCreate", async interaction => {
     if (interaction.isChatInputCommand()) {
 
@@ -110,8 +11,7 @@ client.on("interactionCreate", async interaction => {
                 const embedDiscord = new EmbedBuilder()
                     .setTitle("📘 Reglas Discord")
                     .setColor("#5865F2")
-                    .setDescription(
-`🛡️ **Reglas Generales de Comportamiento**
+                    .setDescription(`🛡️ **Reglas Generales de Comportamiento**
 • Respeta a todos los miembros. No se tolera el acoso, insultos ni discriminación.
 • Evita contenido NSFW o sensible.
 • No hagas spam ni flood.
@@ -154,9 +54,7 @@ client.on("interactionCreate", async interaction => {
 • No compartas enlaces sospechosos.
 • Reporta comportamientos extraños al staff.
 • No uses multicuentas para evadir sanciones.
-• No intentes hackear, raidear o sabotear el servidor.`
-                    );
-
+• No intentes hackear, raidear o sabotear el servidor.`);
                 return interaction.reply({ embeds: [embedDiscord] });
             }
 
@@ -164,8 +62,7 @@ client.on("interactionCreate", async interaction => {
                 const embedMinecraft = new EmbedBuilder()
                     .setTitle("📘 Reglas de Minecraft")
                     .setColor("#9E00FF")
-                    .setDescription(
-`🛡️ **Reglas Generales del Reino**
+                    .setDescription(`🛡️ **Reglas Generales del Reino**
 • Respeta a todos los jugadores.
 • No hagas spam ni flood.
 • No uses lenguaje ofensivo.
@@ -194,9 +91,7 @@ client.on("interactionCreate", async interaction => {
 • Prohibido hacks o mods no autorizados.
 • No explotes bugs.
 • No hagas publicidad de otros servidores.
-• Reporta comportamientos sospechosos.`
-                    );
-
+• Reporta comportamientos sospechosos.`);
                 return interaction.reply({ embeds: [embedMinecraft] });
             }
         }
@@ -218,14 +113,12 @@ client.on("interactionCreate", async interaction => {
             const embed = new EmbedBuilder()
                 .setTitle("🎉 ¡Sorteo Activo!")
                 .setColor("#FFD700")
-                .setDescription(
-`Se está sorteando **${nombres[rango]}**  
+                .setDescription(`Se está sorteando **${nombres[rango]}**
 Duración del premio: **1 mes**
 
 ⏳ El sorteo finalizará automáticamente en **24 horas**.
 
-Pulsa el botón para participar.`
-                );
+Pulsa el botón para participar.`);
 
             const botones = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
@@ -251,12 +144,36 @@ Pulsa el botón para participar.`
                 autor: interaction.user.id
             });
 
-            // FINALIZACIÓN AUTOMÁTICA A LAS 24H
             setTimeout(async () => {
                 const data = sorteos.get(msg.id);
                 if (!data) return;
                 finalizarSorteo(interaction.guild, msg, data);
             }, 24 * 60 * 60 * 1000);
+        }
+
+        // ----------------------
+        // COMANDO /SERVER
+        // ----------------------
+        if (interaction.commandName === "server") {
+
+            const embed = new EmbedBuilder()
+                .setTitle("🌐 Información del Servidor")
+                .setColor("#8A2BE2")
+                .setThumbnail("https://i.imgur.com/5c3QXQF.png")
+                .setDescription("Aquí tienes los datos oficiales del servidor BloqueMágico | Network:")
+                .addFields(
+                    { name: "🟩 Minecraft Java", value: "**IP:** play.bloquemagico.fun" },
+                    { name: "🟦 Minecraft Bedrock", value: "**IP:** mc.bloquemagico.fun\n**Puerto:** 19132" },
+                    { name: "🛒 Tienda", value: "https://tienda.bloquemagico.fun/" },
+                    { name: "📅 Fecha de creación", value: "6/1/2026", inline: true },
+                    { name: "👥 Usuarios", value: "130", inline: true },
+                    { name: "📺 Canales", value: "108", inline: true },
+                    { name: "😃 Emojis", value: "😀 😎 🤖 🧙‍♂️ ✨ 🔮 🐉" }
+                )
+                .setFooter({ text: "BloqueMágico | Network" })
+                .setTimestamp();
+
+            return interaction.reply({ embeds: [embed] });
         }
     }
 
@@ -267,7 +184,6 @@ Pulsa el botón para participar.`
         const data = sorteos.get(interaction.message.id);
         if (!data) return;
 
-        // Participar
         if (interaction.customId === "participar") {
             if (!data.participantes.includes(interaction.user.id)) {
                 data.participantes.push(interaction.user.id);
@@ -277,9 +193,7 @@ Pulsa el botón para participar.`
             }
         }
 
-        // Finalizar sorteo manualmente (SOLO ADMINISTRADORES)
         if (interaction.customId === "finalizar") {
-
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
                 return interaction.reply({
                     content: "❌ No tienes permisos para finalizar el sorteo.",
@@ -292,49 +206,3 @@ Pulsa el botón para participar.`
         }
     }
 });
-
-// ----------------------
-// FUNCIÓN PARA FINALIZAR SORTEO
-// ----------------------
-async function finalizarSorteo(guild, message, data) {
-    if (data.participantes.length === 0) {
-        message.reply("❌ No hubo participantes.");
-        sorteos.delete(message.id);
-        return;
-    }
-
-    const ganador = data.participantes[Math.floor(Math.random() * data.participantes.length)];
-
-    const rolID = roles[data.rango];
-    const rol = guild.roles.cache.get(rolID);
-
-    if (!rol) {
-        message.reply("❌ El rol configurado NO existe. Revisa las IDs.");
-        return;
-    }
-
-    const miembro = await guild.members.fetch(ganador);
-    await miembro.roles.add(rol);
-
-    setTimeout(async () => {
-        await miembro.roles.remove(rol);
-    }, 30 * 24 * 60 * 60 * 1000);
-
-    const embedGanador = new EmbedBuilder()
-        .setTitle("🎉 ¡Ganador del Sorteo!")
-        .setColor("#00FF00")
-        .setDescription(
-`El ganador del sorteo es:
-
-🏆 <@${ganador}> 🏆
-
-Ha ganado **${data.rango}** durante **1 mes**.`
-        );
-
-    message.reply({ embeds: [embedGanador] });
-
-    sorteos.delete(message.id);
-}
-
-// Login
-client.login(process.env.TOKEN);
