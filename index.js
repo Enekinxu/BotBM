@@ -30,14 +30,14 @@ const client = new Client({
 const sorteos = new Collection();
 
 // ----------------------
-// IDs DE ROLES
+// IDs DE ROLES (PON TUS IDs AQUÍ)
 // ----------------------
 const roles = {
-    mago: "1456327931981729855",
-    manacrest: "1456588261966348435",
-    arcano: "1456587467963629613",
-    hechicero: "1456587191164862555",
-    aprendiz: "1456327766617227284"
+    mago: "ID_DEL_ROL_MAGO",
+    manacrest: "ID_DEL_ROL_MANACREST",
+    arcano: "ID_DEL_ROL_ARCANO",
+    hechicero: "ID_DEL_ROL_HECHICERO",
+    aprendiz: "ID_DEL_ROL_APRENDIZ"
 };
 
 // ----------------------
@@ -73,14 +73,7 @@ const comandos = [
                     { name: "Hechicero", value: "hechicero" },
                     { name: "Aprendiz", value: "aprendiz" }
                 )
-        ),
-
-    // ----------------------
-    // REGISTRO /SERVER
-    // ----------------------
-    new SlashCommandBuilder()
-        .setName("server")
-        .setDescription("Muestra información del servidor Discord")
+        )
 ].map(cmd => cmd.toJSON());
 
 client.on("ready", async () => {
@@ -113,7 +106,8 @@ client.on("interactionCreate", async interaction => {
                 const embedDiscord = new EmbedBuilder()
                     .setTitle("📘 Reglas Discord")
                     .setColor("#5865F2")
-                    .setDescription(`🛡️ **Reglas Generales de Comportamiento**
+                    .setDescription(
+`🛡️ **Reglas Generales de Comportamiento**
 • Respeta a todos los miembros. No se tolera el acoso, insultos ni discriminación.
 • Evita contenido NSFW o sensible.
 • No hagas spam ni flood.
@@ -156,7 +150,8 @@ client.on("interactionCreate", async interaction => {
 • No compartas enlaces sospechosos.
 • Reporta comportamientos extraños al staff.
 • No uses multicuentas para evadir sanciones.
-• No intentes hackear, raidear o sabotear el servidor.`);
+• No intentes hackear, raidear o sabotear el servidor.`
+                    );
 
                 return interaction.reply({ embeds: [embedDiscord] });
             }
@@ -165,7 +160,8 @@ client.on("interactionCreate", async interaction => {
                 const embedMinecraft = new EmbedBuilder()
                     .setTitle("📘 Reglas de Minecraft")
                     .setColor("#9E00FF")
-                    .setDescription(`🛡️ **Reglas Generales del Reino**
+                    .setDescription(
+`🛡️ **Reglas Generales del Reino**
 • Respeta a todos los jugadores.
 • No hagas spam ni flood.
 • No uses lenguaje ofensivo.
@@ -194,7 +190,8 @@ client.on("interactionCreate", async interaction => {
 • Prohibido hacks o mods no autorizados.
 • No explotes bugs.
 • No hagas publicidad de otros servidores.
-• Reporta comportamientos sospechosos.`);
+• Reporta comportamientos sospechosos.`
+                    );
 
                 return interaction.reply({ embeds: [embedMinecraft] });
             }
@@ -207,18 +204,18 @@ client.on("interactionCreate", async interaction => {
             const rango = interaction.options.getString("rango");
 
             const nombres = {
-                mago: "🧙‍♂️ Rango Mago",
-                manacrest: "🧙‍♂️ Rango Manacrest",
-                arcano: "🧙‍♂️ Rango Arcano",
-                hechicero: "🧙‍♂️ Rango Hechicero",
-                aprendiz: "🧙‍♂️ Rango Aprendiz"
+                mago: "🟦 Rango Mago",
+                manacrest: "🟪 Rango Manacrest",
+                arcano: "🟩 Rango Arcano",
+                hechicero: "🟧 Rango Hechicero",
+                aprendiz: "🟨 Rango Aprendiz"
             };
 
             const embed = new EmbedBuilder()
                 .setTitle("🎉 ¡Sorteo Activo!")
                 .setColor("#FFD700")
                 .setDescription(
-`Se está sorteando **${nombres[rango]}**
+`Se está sorteando **${nombres[rango]}**  
 Duración del premio: **1 mes**
 
 ⏳ El sorteo finalizará automáticamente en **24 horas**.
@@ -250,103 +247,47 @@ Pulsa el botón para participar.`
                 autor: interaction.user.id
             });
 
+            // FINALIZACIÓN AUTOMÁTICA A LAS 24H
             setTimeout(async () => {
                 const data = sorteos.get(msg.id);
                 if (!data) return;
                 finalizarSorteo(interaction.guild, msg, data);
             }, 24 * 60 * 60 * 1000);
         }
+    }
 
-        // ----------------------
-        // COMANDO /SERVER
-        // ----------------------
-        if (interaction.commandName === "server") {
-            const rolesContar = [
-              "1456327931981729855", // mago
-              "1456588261966348435", // manacrest
-              "1456587467963629613", // arcano
-              "1456587191164862555", // hechicero
-              "1456327766617227284",  // aprendiz
-              "1432009228800753822",  // usuario
-];
+    // ----------------------
+    // BOTONES DEL SORTEO
+    // ----------------------
+    if (interaction.isButton()) {
+        const data = sorteos.get(interaction.message.id);
+        if (!data) return;
 
-            const total = interaction.guild.members.cache
-                .filter(m => !m.user.bot && rolesContar.some(r => m.roles.cache.has(r)))
-                .size;
-
-// ----------------------
-// COMANDO /SERVER
-// ----------------------
-if (interaction.commandName === "server") {
-
-    const fechaCreacion = Math.floor(new Date("2025-10-26").getTime() / 1000);
-
-    // Roles a contar
-    const rolesContar = [
-        "1456327931981729855", // mago
-        "1456588261966348435", // manacrest
-        "1456587467963629613", // arcano
-        "1456587191164862555", // hechicero
-        "1432009228800753822"  // usuario
-    ];
-
-    // Contador de usuarios con cualquiera de esos roles (solo humanos)
-    const totalRoles = interaction.guild.members.cache
-        .filter(m => !m.user.bot && rolesContar.some(r => m.roles.cache.has(r)))
-        .size;
-
-    const embed = new EmbedBuilder()
-        .setTitle("🌐 Información del Servidor")
-        .setColor("#8A2BE2")
-        .setThumbnail(interaction.guild.iconURL({ size: 1024 }))
-        .setDescription("Aquí tienes los datos oficiales del servidor BloqueMágico | Network:")
-        .addFields(
-            {
-                name: "📅 Fecha de creación",
-                value: `<t:${fechaCreacion}:F>\n<t:${fechaCreacion}:R>`,
-                inline: false
-            },
-            {
-                name: "👥 Usuarios con roles mágicos",
-                value: `${totalRoles}`,
-                inline: true
+        // Participar
+        if (interaction.customId === "participar") {
+            if (!data.participantes.includes(interaction.user.id)) {
+                data.participantes.push(interaction.user.id);
+                return interaction.reply({ content: "¡Participación registrada! 🎉", ephemeral: true });
+            } else {
+                return interaction.reply({ content: "Ya estás participando.", ephemeral: true });
             }
-        )
-        .setFooter({ text: "BloqueMágico | Network" })
-        .setTimestamp();
-
-    return interaction.reply({ embeds: [embed] });
-} // ← Cierra el if (interaction.isChatInputCommand())
-
-// ----------------------
-// BOTONES DEL SORTEO
-// ----------------------
-if (interaction.isButton()) {
-    const data = sorteos.get(interaction.message.id);
-    if (!data) return;
-
-    if (interaction.customId === "participar") {
-        if (!data.participantes.includes(interaction.user.id)) {
-            data.participantes.push(interaction.user.id);
-            return interaction.reply({ content: "¡Participación registrada! 🎉", ephemeral: true });
-        } else {
-            return interaction.reply({ content: "Ya estás participando.", ephemeral: true });
-        }
-    }
-
-    if (interaction.customId === "finalizar") {
-        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-            return interaction.reply({
-                content: "❌ No tienes permisos para finalizar el sorteo.",
-                ephemeral: true
-            });
         }
 
-        finalizarSorteo(interaction.guild, interaction.message, data);
-        return interaction.reply({ content: "Sorteo finalizado manualmente.", ephemeral: true });
+        // Finalizar sorteo manualmente (SOLO ADMINISTRADORES)
+        if (interaction.customId === "finalizar") {
+
+            if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                return interaction.reply({
+                    content: "❌ No tienes permisos para finalizar el sorteo.",
+                    ephemeral: true
+                });
+            }
+
+            finalizarSorteo(interaction.guild, interaction.message, data);
+            return interaction.reply({ content: "Sorteo finalizado manualmente.", ephemeral: true });
+        }
     }
-}
-}); // ← Cierra client.on("interactionCreate")
+});
 
 // ----------------------
 // FUNCIÓN PARA FINALIZAR SORTEO
