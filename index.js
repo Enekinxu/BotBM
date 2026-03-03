@@ -261,6 +261,18 @@ Pulsa el botón para participar.`
         // COMANDO /SERVER
         // ----------------------
         if (interaction.commandName === "server") {
+            const rolesContar = [
+              "1456327931981729855", // mago
+              "1456588261966348435", // manacrest
+              "1456587467963629613", // arcano
+              "1456587191164862555", // hechicero
+              "1456327766617227284",  // aprendiz
+              "1432009228800753822",  // usuario
+];
+
+            const total = interaction.guild.members.cache
+                .filter(m => !m.user.bot && rolesContar.some(r => m.roles.cache.has(r)))
+                .size;
 
             const embed = new EmbedBuilder()
                 .setTitle("🌐 Información del Servidor")
@@ -271,7 +283,7 @@ Pulsa el botón para participar.`
                     { name: "🟩 Minecraft Java", value: "**IP:** bloquemagico.aternos.me" },
                     { name: "🛒 Tienda", value: "https://bloquemagico.craftingstore.net/" },
                     { name: "📅 Fecha de creación", value:  "26/10/2025", inline: true },
-                    { name: "👥 Usuarios", value: `Total: ${interaction.guild.members.cache.filter(m => m.roles.cache.has("1432009228800753822"))}`, inline: true },
+                    { name: "👥 Usuarios", value: `Total: ${usuario}`, inline: true },
                     { name: "📺 Canales", value: "108", inline: true },
                     { name: "😃 Emojis", value: "<:17927bolt:1460681116485947659> <:17927warning:1460681133355176102> <:18341calendar:1460679589721542657> <:30939developer:1460679668133789880> <:32162signalbarred:1478032901525344512> <:51052signalbargreen:1478032873599533137> <:59513bluemod:1460679686769348662> <:65981twitch:1460679704137826304> <:67891chaticon:1460679723515642061> <:72031announcement:1460679896136290540> <:73430members:1460679926389670137> <:92143verified:1460679942873419826> <:BloqueMagico:1461052119124541470> <:Cargando:1469632978161504319>" }
                 )
