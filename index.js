@@ -22,7 +22,8 @@ const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.GuildMembers
     ]
 });
 
@@ -73,7 +74,11 @@ const comandos = [
                     { name: "Hechicero", value: "hechicero" },
                     { name: "Aprendiz", value: "aprendiz" }
                 )
-        )
+        ),
+
+    new SlashCommandBuilder()
+        .setName("server")
+        .setDescription("Muestra información del servidor")
 ].map(cmd => cmd.toJSON());
 
 client.on("ready", async () => {
@@ -97,6 +102,58 @@ client.on("interactionCreate", async interaction => {
     if (interaction.isChatInputCommand()) {
 
         // ----------------------
+        // COMANDO /SERVER
+        // ----------------------
+        if (interaction.commandName === "server") {
+
+            const guild = interaction.guild;
+
+            const creado = Math.floor(guild.createdTimestamp / 1000);
+            const totalMiembros = guild.memberCount;
+            const humanos = guild.members.cache.filter(m => !m.user.bot).size;
+            const bots = guild.members.cache.filter(m => m.user.bot).size;
+
+            const embed = new EmbedBuilder()
+                .setTitle("🌐 Información del Servidor")
+                .setColor("#8A2BE2")
+                .setThumbnail(guild.iconURL({ size: 1024 }))
+                .addFields(
+                    { name: "📛 Nombre", value: guild.name, inline: true },
+                    { name: "🆔 ID", value: guild.id, inline: true },
+                    {
+                        name: "📅 Creado",
+                        value: `<t:${creado}:F>\n<t:${creado}:R>`,
+                        inline: false
+                    },
+                    { name: "👑 Dueño", value: `<@${guild.ownerId}>`, inline: true },
+                    {
+                        name: "👥 Miembros",
+                        value: `Total: **${totalMiembros}**\nHumanos: **${humanos}**\nBots: **${bots}**`,
+                        inline: true
+                    },
+                    {
+                        name: "📂 Canales",
+                        value: `${guild.channels.cache.size}`,
+                        inline: true
+                    },
+                    {
+                        name: "🏷️ Roles",
+                        value: `${guild.roles.cache.size}`,
+                        inline: true
+                    },
+                    {
+                        name: "🚀 Boosts",
+                        value: `Nivel: **${guild.premiumTier}**\nBoosts: **${guild.premiumSubscriptionCount}**`,
+                        inline: true
+                    }
+                )
+                .setFooter({ text: "BloqueMágico | Network" })
+                .setTimestamp();
+
+            return interaction.reply({ embeds: [embed] });
+        }
+
+        // ----------------------
         // COMANDO /REGLAS
         // ----------------------
         if (interaction.commandName === "reglas") {
@@ -104,94 +161,110 @@ client.on("interactionCreate", async interaction => {
 
             if (tipo === "discord") {
                 const embedDiscord = new EmbedBuilder()
-                    .setTitle("📘 Reglas Discord")
-                    .setColor("#5865F2")
-                    .setDescription(
-`🛡️ **Reglas Generales de Comportamiento**
-• Respeta a todos los miembros. No se tolera el acoso, insultos ni discriminación.
-• Evita contenido NSFW o sensible.
-• No hagas spam ni flood.
-• Usa lenguaje adecuado.
-• Si hay un problema, contacta al staff.
+    .setTitle("📘 Reglas del Servidor de Discord")
+    .setColor("#5865F2")
+    .setDescription(
+`🛡️ **Normas Generales**
+• Respeta a todos los miembros del servidor.
+• Prohibido insultar, acosar o discriminar.
+• No se permite contenido NSFW, gore o sensible.
+• Evita el spam, flood o menciones innecesarias.
+• Mantén un ambiente sano y amigable.
 
-🧙 **Reglas de Canales de Texto**
-• Escribe en el canal correcto.
-• Evita usar mayúsculas excesivas.
-• Mantén el tema del canal.
-• No promociones otros servidores sin permiso.
+💬 **Canales de Texto**
+• Escribe siempre en el canal correspondiente.
+• No uses mayúsculas de forma excesiva.
+• No envíes enlaces sospechosos o maliciosos.
+• No promociones otros servidores sin permiso del staff.
 • No compartas información personal.
 
-🎙️ **Reglas de Canales de Voz**
+🎙️ **Canales de Voz**
 • Respeta los turnos de palabra.
-• No pongas música sin permiso.
 • Evita ruidos molestos o micrófono abierto constante.
-• No grabes sin permiso.
-• Usa nombres adecuados.
+• No pongas música sin permiso del staff.
+• No grabes conversaciones sin consentimiento.
 
-👑 **Reglas de Roles y Jerarquía**
+👑 **Roles y Jerarquía**
 • Respeta al staff y sus decisiones.
 • No pidas roles especiales sin motivo.
-• Los roles se ganan por participación o eventos.
-• No abuses de tu rol.
+• No abuses de permisos si tienes un rol superior.
+• Los roles se asignan por participación, eventos o decisión del staff.
 
-🎉 **Reglas de Eventos y Actividades**
+🎉 **Eventos y Actividades**
 • Sigue las instrucciones del organizador.
 • No hagas spoilers si están prohibidos.
 • Participa con buena actitud.
-• No interrumpas actividades.
+• No interrumpas actividades en curso.
 
-🧵 **Reglas de Personalización y Creatividad**
-• No robes contenido de otros usuarios.
-• Comparte tus creaciones en los canales adecuados.
-• Respeta derechos de autor.
-• Sé constructivo al dar feedback.
-
-🔵 **Reglas de Seguridad y Protección**
-• No compartas enlaces sospechosos.
-• Reporta comportamientos extraños al staff.
+🔒 **Seguridad**
 • No uses multicuentas para evadir sanciones.
-• No intentes hackear, raidear o sabotear el servidor.`
-                    );
+• No intentes hackear, raidear o sabotear el servidor.
+• Reporta cualquier comportamiento extraño al staff.
+• No compartas datos personales ni contraseñas.
+
+🧙 **Comportamiento en la Comunidad**
+• Sé amable y constructivo al dar opiniones.
+• Respeta las creaciones de otros usuarios.
+• No robes contenido ni te apropies de ideas ajenas.
+• Mantén el espíritu mágico y respetuoso de BloqueMágico.`
+    );
+
+return interaction.reply({ embeds: [embedDiscord] });
 
                 return interaction.reply({ embeds: [embedDiscord] });
             }
 
             if (tipo === "minecraft") {
-                const embedMinecraft = new EmbedBuilder()
-                    .setTitle("📘 Reglas de Minecraft")
-                    .setColor("#9E00FF")
-                    .setDescription(
-`🛡️ **Reglas Generales del Reino**
-• Respeta a todos los jugadores.
-• No hagas spam ni flood.
-• No uses lenguaje ofensivo.
+const embedDiscord = new EmbedBuilder()
+    .setTitle("📘 Reglas del Servidor de Discord")
+    .setColor("#5865F2")
+    .setDescription(
+`🛡️ **Normas Generales**
+• Respeta a todos los miembros del servidor.
+• Prohibido insultar, acosar o discriminar.
+• No se permite contenido NSFW, gore o sensible.
+• Evita el spam, flood o menciones innecesarias.
+• Mantén un ambiente sano y amigable.
+
+💬 **Canales de Texto**
+• Escribe siempre en el canal correspondiente.
+• No uses mayúsculas de forma excesiva.
+• No envíes enlaces sospechosos o maliciosos.
+• No promociones otros servidores sin permiso del staff.
 • No compartas información personal.
-• Sigue las instrucciones del staff.
 
-🧱 **Construcción**
-• No destruyas construcciones ajenas.
-• Evita construcciones ofensivas.
-• Respeta zonas protegidas.
-• No abuses de redstone que cause lag.
+🎙️ **Canales de Voz**
+• Respeta los turnos de palabra.
+• Evita ruidos molestos o micrófono abierto constante.
+• No pongas música sin permiso del staff.
+• No grabes conversaciones sin consentimiento.
 
-⚔️ **PvP**
-• Solo permitido en zonas habilitadas.
-• No hagas spawnkill.
-• Respeta duelos y eventos.
-• No robes objetos sin reglas claras.
+👑 **Roles y Jerarquía**
+• Respeta al staff y sus decisiones.
+• No pidas roles especiales sin motivo.
+• No abuses de permisos si tienes un rol superior.
+• Los roles se asignan por participación, eventos o decisión del staff.
 
-💰 **Economía**
-• No estafes.
-• Respeta precios oficiales.
-• No dupliques objetos.
-• Usa canales adecuados para intercambios.
+🎉 **Eventos y Actividades**
+• Sigue las instrucciones del organizador.
+• No hagas spoilers si están prohibidos.
+• Participa con buena actitud.
+• No interrumpas actividades en curso.
 
-🚫 **Técnico**
-• Prohibido hacks o mods no autorizados.
-• No explotes bugs.
-• No hagas publicidad de otros servidores.
-• Reporta comportamientos sospechosos.`
-                    );
+🔒 **Seguridad**
+• No uses multicuentas para evadir sanciones.
+• No intentes hackear, raidear o sabotear el servidor.
+• Reporta cualquier comportamiento extraño al staff.
+• No compartas datos personales ni contraseñas.
+
+🧙 **Comportamiento en la Comunidad**
+• Sé amable y constructivo al dar opiniones.
+• Respeta las creaciones de otros usuarios.
+• No robes contenido ni te apropies de ideas ajenas.
+• Mantén el espíritu mágico y respetuoso de BloqueMágico.`
+    );
+
+return interaction.reply({ embeds: [embedDiscord] });
 
                 return interaction.reply({ embeds: [embedMinecraft] });
             }
@@ -203,25 +276,10 @@ client.on("interactionCreate", async interaction => {
         if (interaction.commandName === "sorteo") {
             const rango = interaction.options.getString("rango");
 
-            const nombres = {
-                mago: "🟦 Rango Mago",
-                manacrest: "🟪 Rango Manacrest",
-                arcano: "🟩 Rango Arcano",
-                hechicero: "🟧 Rango Hechicero",
-                aprendiz: "🟨 Rango Aprendiz"
-            };
-
             const embed = new EmbedBuilder()
                 .setTitle("🎉 ¡Sorteo Activo!")
                 .setColor("#FFD700")
-                .setDescription(
-`Se está sorteando **${nombres[rango]}**  
-Duración del premio: **1 mes**
-
-⏳ El sorteo finalizará automáticamente en **24 horas**.
-
-Pulsa el botón para participar.`
-                );
+                .setDescription(`Se sortea **${rango}** durante 1 mes.`);
 
             const botones = new ActionRowBuilder().addComponents(
                 new ButtonBuilder()
@@ -246,13 +304,6 @@ Pulsa el botón para participar.`
                 rango: rango,
                 autor: interaction.user.id
             });
-
-            // FINALIZACIÓN AUTOMÁTICA A LAS 24H
-            setTimeout(async () => {
-                const data = sorteos.get(msg.id);
-                if (!data) return;
-                finalizarSorteo(interaction.guild, msg, data);
-            }, 24 * 60 * 60 * 1000);
         }
     }
 
@@ -263,7 +314,6 @@ Pulsa el botón para participar.`
         const data = sorteos.get(interaction.message.id);
         if (!data) return;
 
-        // Participar
         if (interaction.customId === "participar") {
             if (!data.participantes.includes(interaction.user.id)) {
                 data.participantes.push(interaction.user.id);
@@ -273,9 +323,7 @@ Pulsa el botón para participar.`
             }
         }
 
-        // Finalizar sorteo manualmente (SOLO ADMINISTRADORES)
         if (interaction.customId === "finalizar") {
-
             if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
                 return interaction.reply({
                     content: "❌ No tienes permisos para finalizar el sorteo.",
@@ -293,6 +341,7 @@ Pulsa el botón para participar.`
 // FUNCIÓN PARA FINALIZAR SORTEO
 // ----------------------
 async function finalizarSorteo(guild, message, data) {
+
     if (data.participantes.length === 0) {
         message.reply("❌ No hubo participantes.");
         sorteos.delete(message.id);
@@ -305,7 +354,7 @@ async function finalizarSorteo(guild, message, data) {
     const rol = guild.roles.cache.get(rolID);
 
     if (!rol) {
-        message.reply("❌ El rol configurado NO existe. Revisa las IDs.");
+        message.reply("❌ El rol configurado NO existe.");
         return;
     }
 
@@ -319,13 +368,7 @@ async function finalizarSorteo(guild, message, data) {
     const embedGanador = new EmbedBuilder()
         .setTitle("🎉 ¡Ganador del Sorteo!")
         .setColor("#00FF00")
-        .setDescription(
-`El ganador del sorteo es:
-
-🏆 <@${ganador}> 🏆
-
-Ha ganado **${data.rango}** durante **1 mes**.`
-        );
+        .setDescription(`🏆 <@${ganador}> ha ganado **${data.rango}** durante 1 mes.`);
 
     message.reply({ embeds: [embedGanador] });
 
