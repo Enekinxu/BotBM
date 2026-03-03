@@ -317,37 +317,37 @@ if (interaction.commandName === "server") {
         .setTimestamp();
 
     return interaction.reply({ embeds: [embed] });
-}
+} // ← Cierra el if (interaction.isChatInputCommand())
 
-    // ----------------------
-    // BOTONES DEL SORTEO
-    // ----------------------
-    if (interaction.isButton()) {
-        const data = sorteos.get(interaction.message.id);
-        if (!data) return;
+// ----------------------
+// BOTONES DEL SORTEO
+// ----------------------
+if (interaction.isButton()) {
+    const data = sorteos.get(interaction.message.id);
+    if (!data) return;
 
-        if (interaction.customId === "participar") {
-            if (!data.participantes.includes(interaction.user.id)) {
-                data.participantes.push(interaction.user.id);
-                return interaction.reply({ content: "¡Participación registrada! 🎉", ephemeral: true });
-            } else {
-                return interaction.reply({ content: "Ya estás participando.", ephemeral: true });
-            }
-        }
-
-        if (interaction.customId === "finalizar") {
-            if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
-                return interaction.reply({
-                    content: "❌ No tienes permisos para finalizar el sorteo.",
-                    ephemeral: true
-                });
-            }
-
-            finalizarSorteo(interaction.guild, interaction.message, data);
-            return interaction.reply({ content: "Sorteo finalizado manualmente.", ephemeral: true });
+    if (interaction.customId === "participar") {
+        if (!data.participantes.includes(interaction.user.id)) {
+            data.participantes.push(interaction.user.id);
+            return interaction.reply({ content: "¡Participación registrada! 🎉", ephemeral: true });
+        } else {
+            return interaction.reply({ content: "Ya estás participando.", ephemeral: true });
         }
     }
+
+    if (interaction.customId === "finalizar") {
+        if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+            return interaction.reply({
+                content: "❌ No tienes permisos para finalizar el sorteo.",
+                ephemeral: true
+            });
+        }
+
+        finalizarSorteo(interaction.guild, interaction.message, data);
+        return interaction.reply({ content: "Sorteo finalizado manualmente.", ephemeral: true });
+    }
 }
+}); // ← Cierra client.on("interactionCreate")
 
 // ----------------------
 // FUNCIÓN PARA FINALIZAR SORTEO
