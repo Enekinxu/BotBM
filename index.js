@@ -287,7 +287,6 @@ if (interaction.commandName === "server") {
         "1456588261966348435", // manacrest
         "1456587467963629613", // arcano
         "1456587191164862555", // hechicero
-        "1456327766617227284",  // aprendiz
         "1432009228800753822"  // usuario
     ];
 
