@@ -128,7 +128,7 @@ client.on("interactionCreate", async interaction => {
                     { name: "👑 Dueño", value: `<@${guild.ownerId}>`, inline: true },
                     {
                         name: "👥 Miembros",
-                        value: `Total: **${totalMiembros}**\nHumanos: **${humanos}**\nBots: **${bots}**`,
+                        value: `Total: **${totalMiembros}**`,
                         inline: true
                     },
                     {
