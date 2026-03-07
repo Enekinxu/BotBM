@@ -15,6 +15,14 @@ const {
 } = require("discord.js");
 
 const fs = require("fs");
+
+// ----------------------
+// CREAR welcomer.json SI NO EXISTE
+// ----------------------
+if (!fs.existsSync("./welcomer.json")) {
+    fs.writeFileSync("./welcomer.json", JSON.stringify({ canal: null }, null, 4));
+}
+
 let welcomer = require("./welcomer.json");
 
 // Crear REST con el token
