@@ -14,6 +14,9 @@ const {
     PermissionsBitField
 } = require("discord.js");
 
+const fs = require("fs");
+let welcomer = require("./welcomer.json");
+
 // Crear REST con el token
 const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
 
@@ -31,7 +34,7 @@ const client = new Client({
 const sorteos = new Collection();
 
 // ----------------------
-// IDs DE ROLES (PON TUS IDs AQUÍ)
+// IDs DE ROLES
 // ----------------------
 const roles = {
     mago: "ID_DEL_ROL_MAGO",
@@ -78,7 +81,22 @@ const comandos = [
 
     new SlashCommandBuilder()
         .setName("server")
-        .setDescription("Muestra información del servidor")
+        .setDescription("Muestra información del servidor"),
+
+    new SlashCommandBuilder()
+        .setName("welcomer")
+        .setDescription("Configura el sistema de bienvenida")
+        .addSubcommand(sub =>
+            sub
+                .setName("set")
+                .setDescription("Selecciona el canal donde se enviarán las bienvenidas")
+                .addChannelOption(option =>
+                    option
+                        .setName("canal")
+                        .setDescription("Canal donde se enviarán los mensajes de bienvenida")
+                        .setRequired(true)
+                )
+        )
 ].map(cmd => cmd.toJSON());
 
 client.on("ready", async () => {
@@ -102,7 +120,7 @@ client.on("interactionCreate", async interaction => {
     if (interaction.isChatInputCommand()) {
 
         // ----------------------
-        // COMANDO /SERVER
+        // /SERVER
         // ----------------------
         if (interaction.commandName === "server") {
 
@@ -128,7 +146,7 @@ client.on("interactionCreate", async interaction => {
                     { name: "👑 Dueño", value: `<@${guild.ownerId}>`, inline: true },
                     {
                         name: "👥 Miembros",
-                        value: `Total: **${totalMiembros}**`,
+                        value: `Total: **${totalMiembros}**\nHumanos: **${humanos}**\nBots: **${bots}**`,
                         inline: true
                     },
                     {
@@ -154,16 +172,16 @@ client.on("interactionCreate", async interaction => {
         }
 
         // ----------------------
-        // COMANDO /REGLAS
+        // /REGLAS
         // ----------------------
         if (interaction.commandName === "reglas") {
             const tipo = interaction.options.getString("tipo");
 
             if (tipo === "discord") {
                 const embedDiscord = new EmbedBuilder()
-    .setTitle("📘 Reglas del Servidor de Discord")
-    .setColor("#5865F2")
-    .setDescription(
+                    .setTitle("📘 Reglas del Servidor de Discord")
+                    .setColor("#5865F2")
+                    .setDescription(
 `🛡️ **Normas Generales**
 • Respeta a todos los miembros del servidor.
 • Prohibido insultar, acosar o discriminar.
@@ -202,76 +220,82 @@ client.on("interactionCreate", async interaction => {
 • Reporta cualquier comportamiento extraño al staff.
 • No compartas datos personales ni contraseñas.
 
-🧙 **Comportamiento en la Comunidad**
-• Sé amable y constructivo al dar opiniones.
+🧙 **Comunidad**
+• Sé amable y constructivo.
 • Respeta las creaciones de otros usuarios.
-• No robes contenido ni te apropies de ideas ajenas.
-• Mantén el espíritu mágico y respetuoso de BloqueMágico.`
-    );
-
-return interaction.reply({ embeds: [embedDiscord] });
+• Mantén el espíritu mágico de BloqueMágico.`
+                    );
 
                 return interaction.reply({ embeds: [embedDiscord] });
             }
 
             if (tipo === "minecraft") {
-const embedDiscord = new EmbedBuilder()
-    .setTitle("📘 Reglas del Servidor de Discord")
-    .setColor("#5865F2")
-    .setDescription(
+                const embedMinecraft = new EmbedBuilder()
+                    .setTitle("📘 Reglas de Minecraft")
+                    .setColor("#9E00FF")
+                    .setDescription(
 `🛡️ **Normas Generales**
-• Respeta a todos los miembros del servidor.
-• Prohibido insultar, acosar o discriminar.
-• No se permite contenido NSFW, gore o sensible.
-• Evita el spam, flood o menciones innecesarias.
-• Mantén un ambiente sano y amigable.
-
-💬 **Canales de Texto**
-• Escribe siempre en el canal correspondiente.
-• No uses mayúsculas de forma excesiva.
-• No envíes enlaces sospechosos o maliciosos.
-• No promociones otros servidores sin permiso del staff.
+• Respeta a todos los jugadores.
+• No hagas spam ni flood.
+• No uses lenguaje ofensivo.
 • No compartas información personal.
+• Sigue las instrucciones del staff.
 
-🎙️ **Canales de Voz**
-• Respeta los turnos de palabra.
-• Evita ruidos molestos o micrófono abierto constante.
-• No pongas música sin permiso del staff.
-• No grabes conversaciones sin consentimiento.
+🧱 **Construcción**
+• No destruyas construcciones ajenas.
+• Evita construcciones ofensivas.
+• Respeta zonas protegidas.
+• No abuses de redstone que cause lag.
 
-👑 **Roles y Jerarquía**
-• Respeta al staff y sus decisiones.
-• No pidas roles especiales sin motivo.
-• No abuses de permisos si tienes un rol superior.
-• Los roles se asignan por participación, eventos o decisión del staff.
+⚔️ **PvP**
+• Solo permitido en zonas habilitadas.
+• No hagas spawnkill.
+• Respeta duelos y eventos.
 
-🎉 **Eventos y Actividades**
-• Sigue las instrucciones del organizador.
-• No hagas spoilers si están prohibidos.
-• Participa con buena actitud.
-• No interrumpas actividades en curso.
+💰 **Economía**
+• No estafes.
+• No dupliques objetos.
+• Respeta precios oficiales.
 
-🔒 **Seguridad**
-• No uses multicuentas para evadir sanciones.
-• No intentes hackear, raidear o sabotear el servidor.
-• Reporta cualquier comportamiento extraño al staff.
-• No compartas datos personales ni contraseñas.
-
-🧙 **Comportamiento en la Comunidad**
-• Sé amable y constructivo al dar opiniones.
-• Respeta las creaciones de otros usuarios.
-• No robes contenido ni te apropies de ideas ajenas.
-• Mantén el espíritu mágico y respetuoso de BloqueMágico.`
-    );
-
-return interaction.reply({ embeds: [embedDiscord] });
+🚫 **Técnico**
+• Prohibido hacks o mods no autorizados.
+• No explotes bugs.
+• No hagas publicidad de otros servidores.`
+                    );
 
                 return interaction.reply({ embeds: [embedMinecraft] });
             }
         }
 
         // ----------------------
-        // COMANDO /SORTEO
+        // /WELCOMER SET
+        // ----------------------
+        if (interaction.commandName === "welcomer") {
+
+            if (interaction.options.getSubcommand() === "set") {
+
+                if (!interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+                    return interaction.reply({
+                        content: "❌ Solo administradores pueden configurar el welcomer.",
+                        ephemeral: true
+                    });
+                }
+
+                const canal = interaction.options.getChannel("canal");
+
+                welcomer.canal = canal.id;
+
+                fs.writeFileSync("./welcomer.json", JSON.stringify(welcomer, null, 4));
+
+                return interaction.reply({
+                    content: `✅ Canal de bienvenida configurado en: <#${canal.id}>`,
+                    ephemeral: true
+                });
+            }
+        }
+
+        // ----------------------
+        // /SORTEO
         // ----------------------
         if (interaction.commandName === "sorteo") {
             const rango = interaction.options.getString("rango");
@@ -335,6 +359,33 @@ return interaction.reply({ embeds: [embedDiscord] });
             return interaction.reply({ content: "Sorteo finalizado manualmente.", ephemeral: true });
         }
     }
+});
+
+// ----------------------
+// EVENTO DE BIENVENIDA
+// ----------------------
+client.on("guildMemberAdd", miembro => {
+
+    const canalID = welcomer.canal;
+    if (!canalID) return;
+
+    const canal = miembro.guild.channels.cache.get(canalID);
+    if (!canal) return;
+
+    const embed = new EmbedBuilder()
+        .setTitle("🎉 ¡Bienvenido a BloqueMágico!")
+        .setColor("#8A2BE2")
+        .setThumbnail(miembro.user.displayAvatarURL({ size: 1024 }))
+        .setDescription(
+`✨ ¡Hola ${miembro}!  
+Bienvenido al reino mágico de **BloqueMágico | Network**.
+
+🪄 Esperamos que disfrutes tu estancia.  
+📜 Lee las reglas y únete a la aventura.`
+        )
+        .setTimestamp();
+
+    canal.send({ embeds: [embed] });
 });
 
 // ----------------------
